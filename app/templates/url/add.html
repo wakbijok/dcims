@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+
+{% block title %}Add URL{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <h3>Add New URL</h3>
+    </div>
+    <div class="card-body">
+        <form method="POST">
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="url" class="form-label">URL</label>
+                    <input type="text" class="form-control" id="url" name="url" required>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="description" class="form-label">Description</label>
+                    <input type="text" class="form-control" id="description" name="description" required>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <label for="ip_address" class="form-label">IP Address</label>
+                    <select class="form-select" id="ip_address" name="ip_address" required>
+                        <option value="">Select VM IP</option>
+                        {% for vm in vms %}
+                        <option value="{{ vm.ip_address }}">{{ vm.ip_address }} ({{ vm.hostname }})</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label for="protocol" class="form-label">Protocol</label>
+                    <select class="form-select" id="protocol" name="protocol" required>
+                        <option value="HTTP">HTTP</option>
+                        <option value="HTTPS">HTTPS</option>
+                        <option value="FTP">FTP</option>
+                        <option value="SFTP">SFTP</option>
+                    </select>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label for="port" class="form-label">Port</label>
+                    <input type="number" class="form-control" id="port" name="port" required>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <label for="environment" class="form-label">Environment</label>
+                    <select class="form-select" id="environment" name="environment" required>
+                        <option value="Production">Production</option>
+                        <option value="Staging">Staging</option>
+                        <option value="Development">Development</option>
+                    </select>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <div class="form-check mt-4">
+                        <input type="checkbox" class="form-check-input" id="is_public" name="is_public">
+                        <label class="form-check-label" for="is_public">Is Public URL?</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label for="remarks" class="form-label">Remarks</label>
+                <textarea class="form-control" id="remarks" name="remarks" rows="3"></textarea>
+            </div>
+
+            <div class="text-end">
+                <a href="{{ url_for('url.list_urls') }}" class="btn btn-secondary">Cancel</a>
+                <button type="submit" class="btn btn-primary">Save URL</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

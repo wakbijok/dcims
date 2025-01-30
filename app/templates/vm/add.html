@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+
+{% block title %}Add Virtual Machine{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <h3>Add New Virtual Machine</h3>
+    </div>
+    <div class="card-body">
+        <form method="POST" id="vmForm">
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="datacenter_id" class="form-label">Datacenter</label>
+                    <select class="form-select" id="datacenter_id" name="datacenter_id" required>
+                        <option value="">Select Datacenter</option>
+                        {% for dc in datacenters %}
+                        <option value="{{ dc.id }}">{{ dc.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="environment" class="form-label">Environment</label>
+                    <select class="form-select" id="environment" name="environment" required>
+                        <option value="Production">Production</option>
+                        <option value="Staging">Staging</option>
+                        <option value="Development">Development</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="hostname" class="form-label">Hostname</label>
+                    <input type="text" class="form-control" id="hostname" name="hostname" required>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="ip_address" class="form-label">IP Address</label>
+                    <input type="text" class="form-control" id="ip_address" name="ip_address">
+                    <div class="invalid-feedback">IP address already exists</div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="tech_stack" class="form-label">Tech Stack</label>
+                    <input type="text" class="form-control" id="tech_stack" name="tech_stack">
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="description" class="form-label">Description</label>
+                    <textarea class="form-control" id="description" name="description" rows="3"></textarea>
+                </div>
+            </div>
+
+            <div class="text-end">
+                <a href="{{ url_for('vm.list_vms') }}" class="btn btn-secondary">Cancel</a>
+                <button type="submit" class="btn btn-primary">Save VM</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('vmForm');
+    const ipInput = document.getElementById('ip_address');
+
+    async function checkIP(value) {
+        const response = await fetch("{{ url_for('vm.check_ip') }}", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: `ip_address=${value}`
+        });
+        const data = await response.json();
+        return !data.exists;
+    }
+
+    async function validateIP() {
+        if (!ipInput.value) return true;
+        
+        const isUnique = await checkIP(ipInput.value);
+        ipInput.classList.toggle('is-invalid', !isUnique);
+        return isUnique;
+    }
+
+    form.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        const ipValid = await validateIP();
+        if (ipValid) {
+            form.submit();
+        }
+    });
+
+    ipInput.addEventListener('blur', validateIP);
+});
+</script>
+{% endblock %}

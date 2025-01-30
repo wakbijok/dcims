@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+
+{% block title %}Search Results{% endblock %}
+
+{% block content %}
+<div class="mb-4">
+    <form action="{{ url_for('search.search_inventory') }}" method="get" class="d-flex">
+        <input type="search" name="q" class="form-control me-2" value="{{ query }}" placeholder="Search inventory...">
+        <button type="submit" class="btn btn-primary">Search</button>
+    </form>
+</div>
+
+{% if query %}
+    <h4>Search results for "{{ query }}"</h4>
+    
+    {% if results.vms %}
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5>Virtual Machines</h5>
+            </div>
+            <div class="list-group list-group-flush">
+                {% for vm in results.vms %}
+                    <a href="{{ url_for('vm.edit_vm', id=vm.id) }}" class="list-group-item list-group-item-action">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <h6 class="mb-1">{{ vm.hostname }}</h6>
+                                <small>{{ vm.tech_stack }}</small>
+                            </div>
+                            <span class="text-muted">{{ vm.ip_address }}</span>
+                        </div>
+                    </a>
+                {% endfor %}
+            </div>
+        </div>
+    {% endif %}
+
+    {% if results.hardware %}
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5>Hardware</h5>
+            </div>
+            <div class="list-group list-group-flush">
+                {% for hw in results.hardware %}
+                    <a href="{{ url_for('hardware.edit_hardware', id=hw.id) }}" class="list-group-item list-group-item-action">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <h6 class="mb-1">{{ hw.equipment }}</h6>
+                                <small>{{ hw.serial_number }}</small>
+                            </div>
+                            <span class="text-muted">{{ hw.ip_address }}</span>
+                        </div>
+                    </a>
+                {% endfor %}
+            </div>
+        </div>
+    {% endif %}
+
+    {% if results.networks %}
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5>Networks</h5>
+            </div>
+            <div class="list-group list-group-flush">
+                {% for network in results.networks %}
+                    <a href="{{ url_for('network.edit_network', id=network.id) }}" class="list-group-item list-group-item-action">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <h6 class="mb-1">{{ network.description }}</h6>
+                                <small>{{ network.network_address }}</small>
+                            </div>
+                            <span class="text-muted">VLAN {{ network.vlan_id }}</span>
+                        </div>
+                    </a>
+                {% endfor %}
+            </div>
+        </div>
+    {% endif %}
+
+    {% if results.urls %}
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5>URLs</h5>
+            </div>
+            <div class="list-group list-group-flush">
+                {% for url in results.urls %}
+                    <a href="{{ url_for('url.edit_url', id=url.id) }}" class="list-group-item list-group-item-action">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <h6 class="mb-1">{{ url.url }}</h6>
+                                <small>{{ url.description }}</small>
+                            </div>
+                            <span class="text-muted">{{ url.ip_address }}</span>
+                        </div>
+                    </a>
+                {% endfor %}
+            </div>
+        </div>
+    {% endif %}
+
+    {% if not results.vms and not results.hardware and not results.networks and not results.urls %}
+        <div class="alert alert-info">
+            No results found for "{{ query }}"
+        </div>
+    {% endif %}
+{% endif %}
+{% endblock %}

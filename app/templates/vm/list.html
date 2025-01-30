@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+
+{% block title %}Virtual Machines{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>Virtual Machines</h2>
+    <a href="{{ url_for('vm.add_vm') }}" class="btn btn-primary">Add VM</a>
+</div>
+
+<div class="table-responsive">
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Datacenter</th>
+                <th>Hostname</th>
+                <th>IP Address</th>
+                <th>Environment</th>
+                <th>Tech Stack</th>
+                <th>Description</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for vm in vms %}
+            <tr>
+                <td>{{ vm.datacenter.name }}</td>
+                <td>{{ vm.hostname }}</td>
+                <td>{{ vm.ip_address }}</td>
+                <td><span class="badge bg-{{ 'success' if vm.environment == 'Production' else 'warning' if vm.environment == 'Staging' else 'info' }}">{{ vm.environment }}</span></td>
+                <td>{{ vm.tech_stack }}</td>
+                <td>{{ vm.description }}</td>
+                <td>
+                    <div class="btn-group">
+                        <a href="{{ url_for('vm.edit_vm', id=vm.id) }}" class="btn btn-sm btn-warning">Edit</a>
+                        <button class="btn btn-sm btn-danger" onclick="confirmDelete({{ vm.id }})">Delete</button>
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<script>
+function confirmDelete(id) {
+    if (confirm('Are you sure you want to delete this VM?')) {
+        window.location.href = "{{ url_for('vm.delete_vm', id=0) }}".replace('0', id);
+    }
+}
+</script>
+{% endblock %}

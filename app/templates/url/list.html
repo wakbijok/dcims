@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+
+{% block title %}URLs{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>URLs</h2>
+    <a href="{{ url_for('url.add_url') }}" class="btn btn-primary">Add URL</a>
+</div>
+
+<div class="table-responsive">
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>URL</th>
+                <th>Description</th>
+                <th>IP Address</th>
+                <th>Protocol</th>
+                <th>Port</th>
+                <th>Environment</th>
+                <th>Public</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for url in urls %}
+            <tr>
+                <td>{{ url.url }}</td>
+                <td>{{ url.description }}</td>
+                <td>{{ url.ip_address }}</td>
+                <td>{{ url.protocol }}</td>
+                <td>{{ url.port }}</td>
+                <td>{{ url.environment }}</td>
+                <td>
+                    <span class="badge bg-{{ 'success' if url.is_public else 'secondary' }}">
+                        {{ 'Yes' if url.is_public else 'No' }}
+                    </span>
+                </td>
+                <td>
+                    <div class="btn-group">
+                        <a href="{{ url_for('url.edit_url', id=url.id) }}" class="btn btn-sm btn-warning">Edit</a>
+                        <button class="btn btn-sm btn-danger" onclick="confirmDelete({{ url.id }})">Delete</button>
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<script>
+function confirmDelete(id) {
+    if (confirm('Are you sure you want to delete this URL?')) {
+        window.location.href = "{{ url_for('url.delete_url', id=0) }}".replace('0', id);
+    }
+}
+</script>
+{% endblock %}

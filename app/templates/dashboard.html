@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+
+{% block title %}DCIMS Dashboard{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-3 mb-4">
+        <div class="card bg-primary text-white">
+            <div class="card-body">
+                <h5 class="card-title">Total VMs</h5>
+                <h2 class="card-text">{{ vm_count }}</h2>
+                <a href="{{ url_for('vm.list_vms') }}" class="text-white">View Details →</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-4">
+        <div class="card bg-success text-white">
+            <div class="card-body">
+                <h5 class="card-title">Hardware Items</h5>
+                <h2 class="card-text">{{ hardware_count }}</h2>
+                <a href="{{ url_for('hardware.list_hardware') }}" class="text-white">View Details →</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-4">
+        <div class="card bg-info text-white">
+            <div class="card-body">
+                <h5 class="card-title">Networks</h5>
+                <h2 class="card-text">{{ network_count }}</h2>
+                <a href="{{ url_for('network.list_networks') }}" class="text-white">View Details →</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-4">
+        <div class="card bg-warning text-white">
+            <div class="card-body">
+                <h5 class="card-title">URLs</h5>
+                <h2 class="card-text">{{ url_count }}</h2>
+                <a href="{{ url_for('url.list_urls') }}" class="text-white">View Details →</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h5>Recent VMs</h5>
+            </div>
+            <div class="card-body">
+                <div class="list-group">
+                    {% for vm in recent_vms %}
+                    <a href="{{ url_for('vm.edit_vm', id=vm.id) }}" class="list-group-item list-group-item-action">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h6 class="mb-1">{{ vm.hostname }}</h6>
+                            <small>{{ vm.ip_address }}</small>
+                        </div>
+                        <small>{{ vm.environment }}</small>
+                    </a>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h5>Recent Hardware</h5>
+            </div>
+            <div class="card-body">
+                <div class="list-group">
+                    {% for hw in recent_hardware %}
+                    <a href="{{ url_for('hardware.edit_hardware', id=hw.id) }}" class="list-group-item list-group-item-action">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h6 class="mb-1">{{ hw.equipment }}</h6>
+                            <small>{{ hw.ip_address }}</small>
+                        </div>
+                        <small>{{ hw.datacenter.name }}</small>
+                    </a>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

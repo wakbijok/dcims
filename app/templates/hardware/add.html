@@ -1,0 +1,116 @@
+{% extends "base.html" %}
+
+{% block title %}Add Hardware{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <h3>Add New Hardware</h3>
+    </div>
+    <div class="card-body">
+        <form method="POST" id="hardwareForm">
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="datacenter_id" class="form-label">Datacenter</label>
+                    <select class="form-select" id="datacenter_id" name="datacenter_id" required>
+                        <option value="">Select Datacenter</option>
+                        {% for dc in datacenters %}
+                        <option value="{{ dc.id }}">{{ dc.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="equipment" class="form-label">Equipment</label>
+                    <input type="text" class="form-control" id="equipment" name="equipment" required>
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="serial_number" class="form-label">Serial Number</label>
+                    <input type="text" class="form-control" id="serial_number" name="serial_number">
+                    <div class="invalid-feedback">Serial number already exists</div>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="brand_model" class="form-label">Brand/Model</label>
+                    <input type="text" class="form-control" id="brand_model" name="brand_model">
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="ip_address" class="form-label">IP Address</label>
+                    <input type="text" class="form-control" id="ip_address" name="ip_address">
+                    <div class="invalid-feedback">IP address already exists</div>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="function_desc" class="form-label">Function</label>
+                    <input type="text" class="form-control" id="function_desc" name="function_desc">
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <label for="username" class="form-label">Username</label>
+                    <input type="text" class="form-control" id="username" name="username">
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label for="password" class="form-label">Password</label>
+                    <input type="password" class="form-control" id="password" name="password">
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label for="ilo_login" class="form-label">ILO Login</label>
+                    <input type="text" class="form-control" id="ilo_login" name="ilo_login">
+                </div>
+            </div>
+
+            <div class="text-end">
+                <a href="{{ url_for('hardware.list_hardware') }}" class="btn btn-secondary">Cancel</a>
+                <button type="submit" class="btn btn-primary">Save Hardware</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('hardwareForm');
+    const serialInput = document.getElementById('serial_number');
+    const ipInput = document.getElementById('ip_address');
+
+    async function checkUnique(field, value) {
+        const response = await fetch("{{ url_for('hardware.check_unique') }}", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: `field=${field}&value=${value}`
+        });
+        const data = await response.json();
+        return !data.exists;
+    }
+
+    async function validateField(input, field) {
+        if (!input.value) return true;
+        
+        const isUnique = await checkUnique(field, input.value);
+        input.classList.toggle('is-invalid', !isUnique);
+        return isUnique;
+    }
+
+    form.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        const serialValid = await validateField(serialInput, 'serial_number');
+        const ipValid = await validateField(ipInput, 'ip_address');
+        
+        if (serialValid && ipValid) {
+            form.submit();
+        }
+    });
+
+    serialInput.addEventListener('blur', () => validateField(serialInput, 'serial_number'));
+    ipInput.addEventListener('blur', () => validateField(ipInput, 'ip_address'));
+});
+</script>
+{% endblock %}
