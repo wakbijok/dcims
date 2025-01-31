@@ -8,14 +8,15 @@ fi
 
 # System update and dependencies
 apt update
-apt install -y python3-pip python3-venv mysql-server mysql-client default-libmysqlclient-dev python3-dev build-essential pkg-config
+apt install -y python3-pip python3-venv mariadb-server mariadb-client default-libmysqlclient-dev python3-dev build-essential pkg-config
 
-# Create application directory
-mkdir -p /opt/dcims
-cp -r * /opt/dcims/
+# Create and copy application files
+mkdir -p /opt/dcims/{app,scripts,logs}
+cp -r app/* /opt/dcims/app/
+cp scripts/* /opt/dcims/scripts/
+cp requirements.txt /opt/dcims/
 
-# Set permissions and create logs directory
-mkdir -p /opt/dcims/logs
+# Set permissions
 chown -R www-data:www-data /opt/dcims
 chmod -R 755 /opt/dcims
 chmod -R 760 /opt/dcims/logs

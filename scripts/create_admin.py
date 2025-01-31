@@ -3,7 +3,7 @@ import sys
 sys.path.append('/opt/dcims')
 
 from app import create_app, db
-from app.models import User
+from app.models.user import User
 
 def create_admin():
     app = create_app()
