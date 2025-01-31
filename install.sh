@@ -1,24 +1,64 @@
 #!/bin/bash
 
-# Check if Docker is installed
-if ! command -v docker &> /dev/null; then
-    echo "Docker not found. Installing Docker..."
-    curl -fsSL https://get.docker.com -o get-docker.sh
-    sudo sh get-docker.sh
-    sudo usermod -aG docker $USER
+# Check if running as root
+if [ "$EUID" -ne 0 ]; then 
+    echo "Please run as root"
+    exit
 fi
 
-# Check if Docker Compose is installed
-if ! command -v docker-compose &> /dev/null; then
-    echo "Docker Compose not found. Installing Docker Compose..."
-    sudo curl -L "https://github.com/docker/compose/releases/download/v2.5.0/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-    sudo chmod +x /usr/local/bin/docker-compose
-fi
+# System update and dependencies
+apt update
+apt install -y python3-pip python3-venv mysql-server mysql-client default-libmysqlclient-dev python3-dev build-essential pkg-config
 
-# Create necessary directories
-mkdir -p app/static app/templates app/models app/routes database
+# Create application directory
+mkdir -p /opt/dcims
+cp -r * /opt/dcims/
 
-# Start the containers
-docker-compose up -d
+# Set permissions and create logs directory
+mkdir -p /opt/dcims/logs
+chown -R www-data:www-data /opt/dcims
+chmod -R 755 /opt/dcims
+chmod -R 760 /opt/dcims/logs
 
-echo "Installation complete! The application is running at http://localhost:8080"
+# MySQL setup
+mysql -e "CREATE DATABASE IF NOT EXISTS dcims;"
+mysql -e "CREATE USER IF NOT EXISTS 'dcims'@'localhost' IDENTIFIED BY 'dcims_password';"
+mysql -e "GRANT ALL PRIVILEGES ON dcims.* TO 'dcims'@'localhost';"
+mysql -e "FLUSH PRIVILEGES;"
+
+# Python environment
+cd /opt/dcims
+python3 -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+
+# Create service file
+cat > /etc/systemd/system/dcims.service << EOF
+[Unit]
+Description=DCIMS Web Application
+After=network.target mysql.service
+
+[Service]
+User=www-data
+Group=www-data
+WorkingDirectory=/opt/dcims
+Environment="PATH=/opt/dcims/venv/bin"
+ExecStart=/opt/dcims/venv/bin/python app/main.py
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+# Start services
+systemctl daemon-reload
+systemctl enable mysql dcims
+systemctl start mysql dcims
+
+# Create admin user
+cd /opt/dcims
+source venv/bin/activate
+python3 scripts/create_admin.py
+
+echo "Installation complete! Service running at http://localhost:8080"
+echo "Login with username: admin, password: admin123"
