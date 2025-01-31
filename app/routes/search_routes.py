@@ -1,6 +1,9 @@
 from flask import Blueprint, request, render_template
 from sqlalchemy import or_
-from app.models import VirtualMachine, Hardware, Network, URL
+from app.models import VirtualMachine
+from app.models import Hardware
+from app.models import Network
+from app.models import URL
 
 search = Blueprint('search', __name__)
 

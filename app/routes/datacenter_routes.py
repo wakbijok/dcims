@@ -1,5 +1,6 @@
 from flask import render_template, request, redirect, url_for, flash
-from app.models import Datacenter, db
+from app.models import Datacenter
+from app import db
 from . import datacenter
 
 @datacenter.route('/')

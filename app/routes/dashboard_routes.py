@@ -1,5 +1,8 @@
 from flask import Blueprint, render_template
-from app.models import VirtualMachine, Hardware, Network, URL
+from app.models import VirtualMachine
+from app.models import Hardware
+from app.models import Network
+from app.models import URL
 
 dashboard = Blueprint('dashboard', __name__)
 

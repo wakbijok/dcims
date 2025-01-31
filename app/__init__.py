@@ -1,8 +1,6 @@
-from flask import Flask, redirect, url_for
+from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
-from flask_login import LoginManager, current_user
-from app.utils.logger import setup_logger
-from app.errors import register_error_handlers
+from flask_login import LoginManager
 
 db = SQLAlchemy()
 login_manager = LoginManager()
@@ -13,17 +11,28 @@ def create_app():
     
     db.init_app(app)
     login_manager.init_app(app)
-    setup_logger(app)
-    register_error_handlers(app)
-    
-    login_manager.login_view = 'auth.login'
-    login_manager.login_message_category = 'warning'
     
     with app.app_context():
-        from .models import User, Datacenter, Hardware, VirtualMachine, Network, URL
-        from .routes import auth, datacenter, hardware, vm, network, url, dashboard, search
+        from app.utils.logger import setup_logger
+        setup_logger(app)
         
-        db.create_all()  # Create database tables
+        from app.errors import register_error_handlers
+        register_error_handlers(app)
+        
+        login_manager.login_view = 'auth.login'
+        login_manager.login_message_category = 'warning'
+        
+        # Import models from their respective files
+        from app.models.user import User
+        from app.models.datacenter import Datacenter
+        from app.models.hardware import Hardware
+        from app.models.vm import VirtualMachine
+        from app.models.network import Network
+        from app.models.url import URL
+        
+        db.create_all()
+        
+        from .routes import auth, datacenter, hardware, vm, network, url, dashboard, search
         
         app.register_blueprint(auth, url_prefix='/auth')
         app.register_blueprint(dashboard, url_prefix='/')
